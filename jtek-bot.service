@@ -1,0 +1,8 @@
+[Unit]
+Description=JTEK/VOO/SGOV Rotation Bot — daily regime signal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /home/waas/Claude/jtek_bot/runner.py
