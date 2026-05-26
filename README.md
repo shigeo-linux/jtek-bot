@@ -28,6 +28,8 @@ States are ranked by `trend_z − vol_z`: rewards calm uptrends (→ JTEK), pena
 
 ## Backtest (May 2024 → May 2026)
 
+![Backtest chart](backtest.png)
+
 | Variant | Total Return | Sharpe | Max DD |
 |---------|-------------|--------|--------|
 | **Strategy (+VIX+RS)** | **+33.8%** | **0.93** | -19.3% |
