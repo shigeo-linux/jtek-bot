@@ -1,5 +1,5 @@
 [Unit]
-Description=JTEK/VOO/SGOV Bot — daily at 22:00 Oslo (20:00 UTC, after US close)
+Description=JTEK/VOO/SGOV Bot — daily at 4:00 PM ET (20:00 UTC, after US close)
 
 [Timer]
 OnCalendar=*-*-* 20:00:00 UTC

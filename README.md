@@ -44,7 +44,7 @@ The strategy trails buy-and-hold in a strong bull market but cuts max drawdown n
 
 ## Signals
 
-A systemd timer fires daily at **22:00 Oslo time** (after US market close):
+A systemd timer fires daily at **4:00 PM ET / 20:00 UTC** (at US market close):
 
 - **Regime change alert** — fires immediately when regime flips, with explicit "Switch X → Y" action
 - **Daily summary** — current regime, state probabilities, ETF prices, VIX level, last 10 days of history
