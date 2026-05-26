@@ -1,6 +1,6 @@
 # JTEK/VOO/SGOV Rotation Bot
 
-> **Linux only.** Runs as a systemd user service on a Linux machine. The host must be running at 22:00 Oslo time each day for the signal to fire (if the machine is off, `Persistent=true` ensures it runs at next boot).
+> **Linux only.** Runs as a systemd user service on a Linux machine. The host must be running at 4:00 PM ET each day for the signal to fire (if the machine is off, `Persistent=true` ensures it runs at next boot).
 
 Daily Telegram signal bot that uses a 3-state Hidden Markov Model to detect equity market regimes and recommend which ETF to hold.
 
