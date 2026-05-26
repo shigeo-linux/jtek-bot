@@ -10,13 +10,17 @@ REGIME_MAP = {
 }
 
 
-def build_features(df: pd.DataFrame) -> np.ndarray:
+def build_features(df: pd.DataFrame,
+                   vix: pd.Series = None,
+                   jtek: pd.Series = None) -> tuple:
     """
-    Three features that separate equity regimes cleanly:
-      1. 5-day log return     — short-term momentum (less noisy than daily)
-      2. 20-day realised vol  — regime volatility level
-      3. Price vs 200d SMA    — long-term trend, z-scored
-    All z-scored so HMM sees comparable scales.
+    Five features for equity regime detection (all z-scored):
+      1. 5-day log return        — short-term momentum
+      2. 20-day realised vol     — regime volatility level
+      3. Price vs 200d SMA       — long-term trend
+      4. VIX vs 60d mean         — fear/uncertainty level  (if provided)
+      5. JTEK/VOO relative str.  — tech outperformance signal (if provided)
+    Falls back to 3-feature set if VIX/JTEK not available.
     """
     close = df['close']
 
@@ -24,10 +28,18 @@ def build_features(df: pd.DataFrame) -> np.ndarray:
     vol20 = np.log(close / close.shift(1)).rolling(20).std() * np.sqrt(252)
     trend = (close - close.rolling(200).mean()) / close.rolling(200).std()
 
-    feat = pd.DataFrame({'ret5': ret5, 'vol20': vol20, 'trend': trend})
-    feat = feat.dropna()
+    feat_dict = {'ret5': ret5, 'vol20': vol20, 'trend': trend}
 
-    # Z-score each column to equalise influence
+    if vix is not None:
+        vix_a = vix.reindex(close.index, method='ffill').squeeze()
+        feat_dict['vix_z'] = (vix_a - vix_a.rolling(60).mean()) / vix_a.rolling(60).std()
+
+    if jtek is not None:
+        jtek_a = jtek.reindex(close.index, method='ffill').squeeze()
+        ratio  = np.log(jtek_a / close)
+        feat_dict['rs_z'] = (ratio - ratio.rolling(20).mean()) / ratio.rolling(20).std()
+
+    feat = pd.DataFrame(feat_dict).dropna()
     feat = (feat - feat.mean()) / feat.std()
     return feat.values.astype(np.float64), feat.index
 

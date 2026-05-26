@@ -9,7 +9,7 @@ import logging
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from config import Config, LOG_FILE, load_state, save_state
-from data import fetch_ohlcv, fetch_close
+from data import fetch_ohlcv, fetch_close, fetch_vix
 from regime import build_features, fit_hmm, label_states, infer_regime, REGIME_MAP
 
 import requests
@@ -60,7 +60,10 @@ def format_daily_summary(result: dict, prices: dict, date: str) -> str:
         '<b>Prices</b>',
     ]
     for ticker, price in prices.items():
-        lines.append(f'  {ticker}: ${price:.2f}')
+        if ticker == 'VIX':
+            lines.append(f'  VIX: {price:.1f}')
+        else:
+            lines.append(f'  {ticker}: ${price:.2f}')
 
     lines += ['', '<b>Last 10 days</b>']
     for entry in result['history']:
@@ -85,15 +88,17 @@ def run():
         voo_df = fetch_ohlcv('VOO',  config.lookback_days)
         jtek   = fetch_close('JTEK', 500)
         sgov   = fetch_close('SGOV', 500)
+        vix    = fetch_vix(config.lookback_days)
 
         prices = {
             'VOO':  float(voo_df['close'].iloc[-1]),
             'JTEK': float(jtek.iloc[-1]),
             'SGOV': float(sgov.iloc[-1]),
+            'VIX':  float(vix.iloc[-1]),
         }
 
-        logging.info('Building features and training HMM on VOO')
-        features, feat_index = build_features(voo_df)
+        logging.info('Building features (+VIX +RelStrength) and training HMM on VOO')
+        features, feat_index = build_features(voo_df, vix=vix, jtek=jtek)
         model    = fit_hmm(features, config.n_states, config.n_restarts)
         labels   = label_states(model)
         result   = infer_regime(model, features, labels)
